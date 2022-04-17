@@ -1,0 +1,16 @@
+{
+    "root": true,
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "rules": {
+        "no-unused-vars": "error",
+        "no-const-assign": "error",
+        "no-extra-semi": "error",
+    }
+}
