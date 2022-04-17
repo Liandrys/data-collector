@@ -20,11 +20,6 @@ class Database {
     #queue;
 
     constructor() {
-        /* (async () => {
-            this.#connection = await mysql.createConnection('mysql://rzck9h2jrmwi:pscale_pw_FNPm4sz_C7Q-KMqlMkDTkmqvvF-JFG8oe42Z50FT3K8@5201ntzru71l.us-east-2.psdb.cloud/liandry-dev?ssl={"rejectUnauthorized":true}');
-            await this.#initDatabases();
-        })(); */
-
         this.#knex = Knex({
             client: 'mysql',
             connection: {

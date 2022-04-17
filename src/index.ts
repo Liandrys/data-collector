@@ -97,7 +97,7 @@ class Main {
 
 const main = new Main();
 
-main.dataCollector('Beleño')
+main.dataCollector(config.defaultSummonerName)
     .then( () => {
         logger.info({
             message: 'The data collector finished ;)',
