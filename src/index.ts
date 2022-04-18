@@ -7,6 +7,8 @@ import ChampionRepository from './repositories/championRepository';
 import MatchRepository from './repositories/matchRepository';
 import { createLogger, format, transports } from 'winston';
 import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
+import Database from './database';
+import lodash from 'lodash';
 
 export const logger = createLogger({
     level: 'info',
@@ -33,42 +35,56 @@ if (process.env.NODE_ENV !== 'production') {
 
 class Main {
     async dataCollector(summoner: string) {
-        let firstSummoner;
+        try {
+            let firstSummoner;
 
-        if (summoner) {
-            firstSummoner = await Summoner.getSummonerByName(summoner);
-        } else {
-            firstSummoner = await Summoner.getSummonerByName(config.defaultSummonerName);
+            if (summoner) {
+                firstSummoner = await Summoner.getSummonerByName(summoner);
+            } else {
+                firstSummoner = await Summoner.getSummonerByName(config.defaultSummonerName);
+            }
+
+            const matchlist = await Match.getMatchsIdList(firstSummoner.puuid);
+
+            await this.mapMatchList(matchlist, summoner);
+        } catch (error) {
+            logger.error(new Error(error));
         }
 
-        const matchlist = await Match.getMatchsIdList(firstSummoner.puuid);
-
-        await this.mapMatchList(matchlist);
-
     }
 
-    async mapMatchList(matchsIds: string[]) {
-        matchsIds.forEach(async matchid => {
-            // Get the information about this match
-            Match.getMatchInfo(matchid)
-                .then(async match => {
+    async mapMatchList(matchsIds: string[], summonerName: string) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let index = 0; index < matchsIds.length; index++) {
+            const matchid = matchsIds[index];
 
-                    // Check if the map its not already scaned
-                    const exists = await MatchRepository.getMatchIdExistsOnDatabase(matchid);
+            // Check if the map its not already scaned
+            const promiseQueueSize = Database.getPromiseQueueItsEmpty();
 
-                    if (!exists) {
-                        const participants = match.info.participants;
-
-                        await MatchRepository.saveMatchId(matchid);
-                        await this.mapParticipants(participants);
-                    } else {
-                        return;
-                    }
+            if (!promiseQueueSize) {
+                logger.warn({
+                    message: 'Waiting to promises queue finish...'
                 });
-        });
+                index =- 1;
+                continue;
+            }
+
+            const exists = await MatchRepository.getMatchIdExistsOnDatabase(matchid);
+
+            if (exists === false) {
+                const match = await Match.getMatchInfo(matchid);
+                const participants = match.info.participants;
+
+                await MatchRepository.saveMatchId(matchid);
+                await this.mapParticipants(participants, summonerName);
+            } else {
+                continue;
+            }
+        }
+
     }
 
-    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[]) {
+    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string) {
         for (const element in participants) {
             if (Object.prototype.hasOwnProperty.call(participants, element)) {
                 const participant = participants[element];
@@ -81,6 +97,10 @@ class Main {
                 }
             }
         }
+
+        lodash.remove(participants, (o) => {
+            return o.summonerName === summonerName;
+        });
 
         for (const element in participants) {
             if (Object.prototype.hasOwnProperty.call(participants, element)) {

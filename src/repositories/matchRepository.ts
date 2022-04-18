@@ -18,10 +18,9 @@ if (process.env.NODE_ENV !== 'production') {
 class MatchRepository {
     async getMatchIdExistsOnDatabase(id: string) {
         const connecion = Database.getConnection();
+        const count = await connecion('matchs_ids').count('id', { as: 'cnt' }).where('id', id);
 
-        const count = await connecion('matchs_ids').count('id', { as: 'CNT' }).where('id', id);
-
-        if (count[0].CNT === 0) {
+        if (count[0].cnt >= 1) {
             return true;
         } else {
             return false;

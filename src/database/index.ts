@@ -46,7 +46,7 @@ class Database {
         });
 
         this.#queue = new Queue({
-            concurrent: 1,
+            concurrent: 2,
             interval: 200,
         });
 
@@ -124,6 +124,19 @@ class Database {
         this.#queue.enqueue(async () => {
             await prom;
         });
+
+    }
+
+    getPromisesQueue() {
+        return this.#queue;
+    }
+
+    getPromiseQueueItsEmpty() {
+        if (this.#queue.size === 0 && this.#queue.isEmpty) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
