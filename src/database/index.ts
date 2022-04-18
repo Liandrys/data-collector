@@ -1,6 +1,7 @@
 import Knex from 'knex';
 import { createLogger, format, transports } from 'winston';
 import Queue from 'queue-promise';
+import { snakeCase } from 'lodash';
 
 export const logger = createLogger({
     level: 'info',
@@ -20,7 +21,7 @@ class Database {
     #queue;
 
     constructor() {
-        this.#knex = Knex({
+        /* this.#knex = Knex({
             client: 'mysql',
             connection: {
                 database: process.env.DATABASE_NAME,
@@ -30,6 +31,18 @@ class Database {
                 port: 3306,
                 ssl: true,
             }
+        }); */
+
+        this.#knex = Knex({
+            client: 'pg',
+            connection: {
+                database: process.env.LOCAL_DATABASE_NAME,
+                user: 'postgres',
+                password: process.env.LOCAL_DATABASE_PASSWORD,
+                host: 'localhost',
+                port: 5432,
+            },
+            wrapIdentifier: (value, origImpl ) => origImpl(snakeCase(value))
         });
 
         this.#queue = new Queue({
@@ -40,6 +53,12 @@ class Database {
         this.#queue.on('resolve', () => {
             logger.info({
                 message: 'New promised resolved'
+            });
+        });
+
+        this.#queue.on('error', (reject) => {
+            logger.error({
+                message: reject,
             });
         });
 
@@ -60,23 +79,24 @@ class Database {
             throw new Error('Erron on clean championsStats table: ' + error);
         }
     }
+
     async #initDatabases() {
         logger.info({
             message: 'Initializing databases',
         });
 
         try {
-            const ifChampionsStatsTableExist = await this.#knex.schema.hasTable('championsStats');
-            const ifMatchsIdsTableExists = await this.#knex.schema.hasTable('matchsIds');
+            const ifChampionsStatsTableExist = await this.#knex.schema.hasTable('champions_stats');
+            const ifMatchsIdsTableExists = await this.#knex.schema.hasTable('matchs_ids');
 
             if (!ifChampionsStatsTableExist) {
                 await this.#knex.schema
                     // ...and another
-                    .createTable('championsStats', table => {
+                    .createTable('champions_stats', table => {
                         table.string('id').primary();
-                        table.integer('championId');
+                        table.integer('champion_id');
                         table.integer('matchesPlayed');
-                        table.string('championName');
+                        table.string('champion_name');
                         table.integer('matchesWinned');
                         table.integer('matchesLossed');
                         table.string('individualPosition');
@@ -86,11 +106,11 @@ class Database {
 
             if (!ifMatchsIdsTableExists) {
                 await this.#knex.schema
-                    .createTable('matchsIds', table => {
+                    .createTable('matchs_ids', table => {
                         table.string('id').primary();
                     });
             }
-            // await connection.query('CREATE TABLE IF NOT EXISTS championsStats (id TEXT, championId INT, matchesPlayed INT, championName TEXT, matchesWinned INT, matchesLossed INT, individualPosition TEXT, teamPosition TEXT)');
+            // await connection.query('CREATE TABLE IF NOT EXISTS championsStats (id TEXT, champion_id INT, matchesPlayed INT, champion_name TEXT, matchesWinned INT, matchesLossed INT, individualPosition TEXT, teamPosition TEXT)');
         } catch (error) {
             throw new Error('Erron on create table: ' + error);
         }

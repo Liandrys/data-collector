@@ -56,7 +56,7 @@ class Main {
                     // Check if the map its not already scaned
                     const exists = await MatchRepository.getMatchIdExistsOnDatabase(matchid);
 
-                    if (exists) {
+                    if (!exists) {
                         const participants = match.info.participants;
 
                         await MatchRepository.saveMatchId(matchid);
@@ -72,10 +72,9 @@ class Main {
         for (const element in participants) {
             if (Object.prototype.hasOwnProperty.call(participants, element)) {
                 const participant = participants[element];
-
                 const championPlayed = Champion.getChampionPlayed(participant);
 
-                if (championPlayed.individualPosition === 'Invalid') {
+                if (championPlayed.individual_position === 'Invalid') {
                     continue;
                 } else {
                     await ChampionRepository.saveChampion(championPlayed, participant.win);

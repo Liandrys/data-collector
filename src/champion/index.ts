@@ -4,10 +4,10 @@ import { ChampionStatsModel } from '../types';
 class Champion {
     getChampionPlayed(participant: MatchV5DTOs.ParticipantDto) {
         const championPlayed: ChampionStatsModel = {
-            championId: participant.championId,
-            championName: participant.championName,
-            individualPosition: participant.individualPosition,
-            teamPosition: participant.teamPosition,
+            champion_id: participant.championId,
+            champion_name: participant.championName,
+            individual_position: participant.individualPosition,
+            team_position: participant.teamPosition,
             id: `${participant.championId}_${participant.teamPosition}`,
         };
 

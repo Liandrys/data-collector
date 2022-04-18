@@ -1,14 +1,14 @@
 export interface ChampionStatsModel {
-    id: string; // championId + position
-    championId: number;
-    championName: string;
-    matchesPlayed?: number; // matchesWinned + matchesLossed
-    matchesWinned?: number;
-    matchesLossed?: number;
-    individualPosition: string;
-    teamPosition: string;
+    id: string; // champion_id + position
+    champion_id: number;
+    champion_name: string;
+    matches_played?: number; // matchesWinned + matchesLossed
+    matches_winned?: number;
+    matches_lossed?: number;
+    individual_position: string;
+    team_position: string;
 }
 
 export interface MatchIdsModel {
     id: string;
-};
+}

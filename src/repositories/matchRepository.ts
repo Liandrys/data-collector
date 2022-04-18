@@ -19,7 +19,7 @@ class MatchRepository {
     async getMatchIdExistsOnDatabase(id: string) {
         const connecion = Database.getConnection();
 
-        const count = await connecion('matchsIds').count('* as CNT').where('id', id);
+        const count = await connecion('matchs_ids').count('id', { as: 'CNT' }).where('id', id);
 
         if (count[0].CNT === 0) {
             return true;
@@ -35,7 +35,7 @@ class MatchRepository {
 
         const connecion = Database.getConnection();
 
-        connecion<MatchIdsModel>('matchsIds').insert({ id })
+        connecion<MatchIdsModel>('matchs_ids').insert({ id })
             .then(() => {
                 return;
             });
