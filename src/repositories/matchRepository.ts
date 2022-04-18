@@ -1,20 +1,6 @@
 import { MatchIdsModel } from 'src/types';
-import { createLogger, format, transports } from 'winston';
 import Database from '../database';
-
-export const logger = createLogger({
-    level: 'info',
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      )
-    }));
-}
-
+import { logger } from '../libs';
 class MatchRepository {
     async getMatchIdExistsOnDatabase(id: string) {
         const connecion = Database.getConnection();
@@ -28,9 +14,7 @@ class MatchRepository {
     }
 
     async saveMatchId(id: string) {
-        logger.info({
-            message: `[New match]: ${id}`
-        });
+        logger.info(`[New match]: ${id}`);
 
         const connecion = Database.getConnection();
 

@@ -5,5 +5,6 @@ export const Api = new LolApi({
     concurrency: 1,
     debug: {
         logUrls: true,
-    }
+    },
+    rateLimitRetryAttempts: 3
 });

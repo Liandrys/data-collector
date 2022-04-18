@@ -1,23 +1,7 @@
 import { ChampionStatsModel } from 'src/types';
-import { createLogger, format, transports } from 'winston';
 import Database from '../database';
-
-export const logger = createLogger({
-    level: 'info',
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      )
-    }));
-}
-
-
+import { logger } from '../libs';
 class ChampionRepository {
-
     async getChampionById(id: string): Promise<ChampionStatsModel[]> {
         const connecion = Database.getConnection();
 
@@ -54,9 +38,7 @@ class ChampionRepository {
             };
 
             await connection<ChampionStatsModel>('champions_stats').insert(champToSave).then( () =>{
-                logger.info({
-                    message: `Champion with id ${champToSave.id} saved on the database`
-                });
+                logger.info(`Champion with id ${champToSave.id} saved on the database`);
             });
         } catch (error) {
             throw new Error('Error on create a champion: ' + error);

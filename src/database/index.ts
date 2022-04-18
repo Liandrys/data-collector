@@ -1,21 +1,8 @@
 import Knex from 'knex';
-import { createLogger, format, transports } from 'winston';
 import Queue from 'queue-promise';
 import { snakeCase } from 'lodash';
 
-export const logger = createLogger({
-    level: 'info',
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      )
-    }));
-}
-
+import { logger } from '../libs';
 class Database {
     #knex;
     #queue;
@@ -51,15 +38,11 @@ class Database {
         });
 
         this.#queue.on('resolve', () => {
-            logger.info({
-                message: 'New promised resolved'
-            });
+            logger.info('Promise resolved');
         });
 
         this.#queue.on('error', (reject) => {
-            logger.error({
-                message: reject,
-            });
+            logger.error(reject);
         });
 
         (async () => {
@@ -69,9 +52,8 @@ class Database {
     }
 
     async #cleanTables() {
-        logger.info({
-            message: 'Cleaning Databases',
-        });
+        logger.info('Cleaning Databases');
+
         try {
             await this.#knex('championsStats').delete();
             await this.#knex('matchsIds').delete();
@@ -81,9 +63,7 @@ class Database {
     }
 
     async #initDatabases() {
-        logger.info({
-            message: 'Initializing databases',
-        });
+        logger.info('Initializing databases');
 
         try {
             const ifChampionsStatsTableExist = await this.#knex.schema.hasTable('champions_stats');

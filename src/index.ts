@@ -5,32 +5,11 @@ import Champion from './champion';
 import { config } from './config';
 import ChampionRepository from './repositories/championRepository';
 import MatchRepository from './repositories/matchRepository';
-import { createLogger, format, transports } from 'winston';
 import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
 import Database from './database';
 import lodash from 'lodash';
 
-export const logger = createLogger({
-    level: 'info',
-    format: format.combine(
-      format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss'
-      }),
-      format.errors({ stack: true }),
-      format.splat(),
-      format.json()
-    ),
-    defaultMeta: { service: 'your-service-name' },
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      )
-    }));
-}
+import { logger } from './libs';
 
 
 class Main {
@@ -48,7 +27,7 @@ class Main {
 
             await this.mapMatchList(matchlist, summoner);
         } catch (error) {
-            logger.error(new Error(error));
+            logger.error(error);
         }
 
     }
@@ -62,9 +41,8 @@ class Main {
             const promiseQueueSize = Database.getPromiseQueueItsEmpty();
 
             if (!promiseQueueSize) {
-                logger.warn({
-                    message: 'Waiting to promises queue finish...'
-                });
+                logger.warn('Waiting to promises queue finish...');
+
                 index =- 1;
                 continue;
             }
@@ -118,7 +96,5 @@ const main = new Main();
 
 main.dataCollector(config.defaultSummonerName)
     .then( () => {
-        logger.info({
-            message: 'The data collector finished ;)',
-        });
+        logger.info('The data collector finished ;)');
 });
