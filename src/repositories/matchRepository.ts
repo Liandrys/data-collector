@@ -13,6 +13,13 @@ class MatchRepository {
         }
     }
 
+    async getMatchsIdsCount() {
+        const connecion = Database.getConnection();
+        const count = await connecion('matchs_ids').count('id', { as: 'cnt' });
+
+        return count[0].cnt;
+    }
+
     async saveMatchId(id: string) {
         logger.info(`[New match]: ${id}`);
 

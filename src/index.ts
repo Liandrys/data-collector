@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { logger } from './libs';
 import Summoner from './summoner';
 import Match from './match';
 import Champion from './champion';
@@ -9,12 +10,12 @@ import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
 import Database from './database';
 import lodash from 'lodash';
 
-import { logger } from './libs';
 
 
 class Main {
     async dataCollector(summoner: string) {
         try {
+            // AlgorithmStats.start();
             let firstSummoner;
 
             if (summoner) {
@@ -30,6 +31,7 @@ class Main {
             logger.error(error);
         }
 
+
     }
 
     async mapMatchList(matchsIds: string[], summonerName: string) {
@@ -41,7 +43,7 @@ class Main {
             const promiseQueueSize = Database.getPromiseQueueItsEmpty();
 
             if (!promiseQueueSize) {
-                logger.warn('Waiting to promises queue finish...');
+                // logger.warn('Waiting to promises queue finish...');
 
                 index =- 1;
                 continue;
