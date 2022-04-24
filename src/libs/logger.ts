@@ -6,7 +6,16 @@ class Logger {
     constructor() {
         this.#logger = createLogger({
             level: 'info',
-        })
+             transports: [
+                //
+                // - Write all logs with importance level of `error` or less to `error.log`
+                // - Write all logs with importance level of `info` or less to `combined.log`
+                //
+                new transports.File({ filename: 'error.log', level: 'error' }),
+                new transports.File({ filename: 'warn.log', level: 'warn' }),
+                new transports.File({ filename: 'combined.log' }),
+            ],
+        });
 
         if (process.env.NODE_ENV !== 'production') {
             this.#logger.add(new transports.Console({
@@ -14,7 +23,7 @@ class Logger {
                     format.colorize(),
                     format.cli()
                 )
-            }))
+            }));
         }
     }
 
@@ -25,7 +34,7 @@ class Logger {
     }
 
     error(message: string) {
-        this.#logger.error(new Error(message));
+        this.#logger.error(message);
     }
 
     warn(message: string) {

@@ -1,11 +1,13 @@
 import { ChampionStatsModel } from 'src/types';
 import Database from '../database';
 import { logger } from '../libs';
+import { tablesNames } from '../sql';
+
 class ChampionRepository {
     async getChampionById(id: string): Promise<ChampionStatsModel[]> {
         const connecion = Database.getConnection();
 
-        return connecion<ChampionStatsModel>('champions_stats').select().where('id', id)
+        return connecion<ChampionStatsModel>(tablesNames.championsStats).select().where('id', id)
             .then(result => {
                 return result;
             });
@@ -31,13 +33,13 @@ class ChampionRepository {
                 champion_id: champ.champion_id,
                 champion_name: champ.champion_name,
                 individual_position: champ.individual_position,
-                matchesLossed,
-                matchesWinned,
-                matchesPlayed: 1,
+                losing_matches: matchesLossed,
+                won_matches: matchesWinned,
+                played_matches: 1,
                 team_position: champ.team_position
             };
 
-            await connection<ChampionStatsModel>('champions_stats').insert(champToSave).then( () =>{
+            await connection<ChampionStatsModel>(tablesNames.championsStats).insert(champToSave).then( () =>{
                 logger.info(`Champion with id ${champToSave.id} saved on the database`);
             });
         } catch (error) {
@@ -49,7 +51,7 @@ class ChampionRepository {
         const connection = Database.getConnection();
 
         try {
-            await connection<ChampionStatsModel>('champions_stats').where('id', prevChamp.id).update(newChamp);
+            await connection<ChampionStatsModel>(tablesNames.championsStats).where('id', prevChamp.id).update(newChamp);
         } catch (error) {
             throw new Error('Error on update champion: ' + error);
         }
@@ -59,7 +61,7 @@ class ChampionRepository {
         const connection = Database.getConnection();
 
         try {
-            return await connection<ChampionStatsModel>('champions_stats').select();
+            return await connection<ChampionStatsModel>(tablesNames.championsStats).select();
         } catch (error) {
             return null;
         }
@@ -74,15 +76,15 @@ class ChampionRepository {
             // await this.createChampion(champion, win);
             Database.enqueuePromise(this.createChampion(champion, win));
         } else {
-            const newWin = championOnDatabase[0].matches_winned ? championOnDatabase[0].matches_winned : 0;
-            const newLoss = championOnDatabase[0].matches_lossed ? championOnDatabase[0].matches_lossed : 0;
-            const newPlayed = championOnDatabase[0].matches_played ? championOnDatabase[0].matches_played + 1 : 1;
+            const newWin = championOnDatabase[0].won_matches > 0 ? championOnDatabase[0].won_matches : 0;
+            const newLoss = championOnDatabase[0].losing_matches > 0 ? championOnDatabase[0].losing_matches : 0;
+            const newPlayed = championOnDatabase[0].played_matches > 0 ? championOnDatabase[0].played_matches + 1 : 1;
 
             const newChamp: ChampionStatsModel = {
                 ...championOnDatabase[0],
-                matches_lossed: win ? newLoss : newLoss + 1,
-                matches_winned: win ? newWin + 1 : newWin,
-                matches_played: newPlayed,
+                losing_matches: win ? newLoss : newLoss + 1,
+                won_matches: win ? newWin + 1 : newWin,
+                played_matches: newPlayed,
             };
 
             Database.enqueuePromise(this.updateChampion(championOnDatabase[0], newChamp));

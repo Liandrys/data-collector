@@ -1,8 +1,9 @@
 import Knex from 'knex';
 import Queue from 'queue-promise';
 import { snakeCase } from 'lodash';
-
+import { tablesNames } from '../sql';
 import { logger } from '../libs';
+
 class Database {
     #knex;
     #queue;
@@ -47,49 +48,71 @@ class Database {
 
         (async () => {
             this.#initDatabases();
-            this.#cleanTables();
+            // this.#cleanTables();
         })();
     }
 
-    async #cleanTables() {
+    /* async #cleanTables() {
         logger.info('Cleaning Databases');
-
         try {
             await this.#knex('championsStats').delete();
             await this.#knex('matchsIds').delete();
         } catch (error) {
             throw new Error('Erron on clean championsStats table: ' + error);
         }
-    }
+    } */
 
     async #initDatabases() {
         logger.info('Initializing databases');
 
         try {
-            const ifChampionsStatsTableExist = await this.#knex.schema.hasTable('champions_stats');
-            const ifMatchsIdsTableExists = await this.#knex.schema.hasTable('matchs_ids');
+            const ifChampionsStatsTableExist = await this.#knex.schema.hasTable(tablesNames.championsStats);
+            const ifMatchsIdsTableExists = await this.#knex.schema.hasTable(tablesNames.matches);
+            const ifSummonerTableExists = await this.#knex.schema.hasTable(tablesNames.summoners);
+
+            if (!ifSummonerTableExists) {
+                await this.#knex.schema
+                    .createTable(tablesNames.summoners, table => {
+                        table.string('name');
+                        table.integer('played_matches');
+                        table.integer('won_matches');
+                        table.integer('losing_matches');
+                        table.smallint('level');
+                        table.timestamp('last_update');
+                        table.jsonb('leagues');
+                        table.specificType('matches', 'TEXT[]');
+                    });
+            }
 
             if (!ifChampionsStatsTableExist) {
                 await this.#knex.schema
-                    // ...and another
-                    .createTable('champions_stats', table => {
+                    .createTable(tablesNames.championsStats, table => {
                         table.string('id').primary();
                         table.integer('champion_id');
-                        table.integer('matchesPlayed');
+                        table.integer('played_matches');
                         table.string('champion_name');
-                        table.integer('matchesWinned');
-                        table.integer('matchesLossed');
-                        table.string('individualPosition');
+                        table.integer('won_matches');
+                        table.integer('losing_matches');
+                        table.string('individual_position');
                         table.string('teamPosition');
                     });
             }
 
             if (!ifMatchsIdsTableExists) {
                 await this.#knex.schema
-                    .createTable('matchs_ids', table => {
-                        table.string('id').primary();
+                    .createTable(tablesNames.matches, table => {
+                        table.string('match_id').primary();
+                        table.string('game_id');
+                        table.integer('game_duration');
+                        table.string('game_mode');
+                        table.string('game_type');
+                        table.string('game_version');
+                        table.jsonb('participants');
+                        table.string('average_range');
                     });
+
             }
+
             // await connection.query('CREATE TABLE IF NOT EXISTS championsStats (id TEXT, champion_id INT, matchesPlayed INT, champion_name TEXT, matchesWinned INT, matchesLossed INT, individualPosition TEXT, teamPosition TEXT)');
         } catch (error) {
             throw new Error('Erron on create table: ' + error);
@@ -104,7 +127,6 @@ class Database {
         this.#queue.enqueue(async () => {
             await prom;
         });
-
     }
 
     getPromisesQueue() {
@@ -117,6 +139,10 @@ class Database {
         } else {
             return false;
         }
+    }
+
+    cleanPromiseQueue(){
+        this.#queue.clear();
     }
 }
 

@@ -10,8 +10,6 @@ import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
 import Database from './database';
 import lodash from 'lodash';
 
-
-
 class Main {
     async dataCollector(summoner: string) {
         try {
@@ -30,12 +28,11 @@ class Main {
         } catch (error) {
             logger.error(error);
         }
-
-
     }
 
     async mapMatchList(matchsIds: string[], summonerName: string) {
         // tslint:disable-next-line: prefer-for-of
+
         for (let index = 0; index < matchsIds.length; index++) {
             const matchid = matchsIds[index];
 
@@ -44,7 +41,8 @@ class Main {
 
             if (!promiseQueueSize) {
                 // logger.warn('Waiting to promises queue finish...');
-
+                logger.warn('Cleaning database');
+                Database.cleanPromiseQueue();
                 index =- 1;
                 continue;
             }
@@ -55,13 +53,12 @@ class Main {
                 const match = await Match.getMatchInfo(matchid);
                 const participants = match.info.participants;
 
-                await MatchRepository.saveMatchId(matchid);
+                await MatchRepository.saveMatch(match, match.metadata.matchId);
                 await this.mapParticipants(participants, summonerName);
             } else {
                 continue;
             }
         }
-
     }
 
     async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string) {
@@ -90,8 +87,6 @@ class Main {
             }
         }
     }
-
-
 }
 
 const main = new Main();
@@ -99,4 +94,7 @@ const main = new Main();
 main.dataCollector(config.defaultSummonerName)
     .then( () => {
         logger.info('The data collector finished ;)');
-});
+    })
+    .catch((error: string) => {
+        logger.error(error)
+    });
