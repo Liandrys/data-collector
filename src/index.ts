@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { logger } from './libs';
 import Summoner from './summoner';
-import Match from './match';
-import Champion from './champion';
+import MatchService from './services/matchService';
+import ChampionService from './services/championService';
 import { config } from './config';
 import ChampionRepository from './repositories/championRepository';
 import MatchRepository from './repositories/matchRepository';
@@ -18,11 +18,11 @@ class Main {
 
             if (summoner) {
                 firstSummoner = await Summoner.getSummonerByName(summoner);
-            } else {
+            } else {1
                 firstSummoner = await Summoner.getSummonerByName(config.defaultSummonerName);
             }
 
-            const matchlist = await Match.getMatchsIdList(firstSummoner.puuid);
+            const matchlist = await MatchService.getMatchsIdList(firstSummoner.puuid);
 
             await this.mapMatchList(matchlist, summoner);
         } catch (error) {
@@ -50,7 +50,7 @@ class Main {
             const exists = await MatchRepository.getMatchIdExistsOnDatabase(matchid);
 
             if (exists === false) {
-                const match = await Match.getMatchInfo(matchid);
+                const match = await MatchService.getMatchInfo(matchid);
                 const participants = match.info.participants;
 
                 await MatchRepository.saveMatch(match, match.metadata.matchId);
@@ -65,7 +65,7 @@ class Main {
         for (const element in participants) {
             if (Object.prototype.hasOwnProperty.call(participants, element)) {
                 const participant = participants[element];
-                const championPlayed = Champion.getChampionPlayed(participant);
+                const championPlayed = ChampionService.getChampionPlayed(participant);
 
                 if (championPlayed.individual_position === 'Invalid') {
                     continue;
@@ -96,5 +96,5 @@ main.dataCollector(config.defaultSummonerName)
         logger.info('The data collector finished ;)');
     })
     .catch((error: string) => {
-        logger.error(error)
+        logger.error(error);
     });
