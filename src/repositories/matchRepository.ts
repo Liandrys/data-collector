@@ -1,4 +1,4 @@
-import { MatchIdsModel } from 'src/types';
+import { MatchType } from '../types';
 import Database from '../database';
 import { logger } from '../libs';
 import { tablesNames } from '../sql';
@@ -35,7 +35,7 @@ class MatchRepository {
 
         const connection = Database.getConnection();
 
-        const matchToSave: MatchIdsModel = {
+        const matchToSave: MatchType = {
             game_id: match.info.gameId,
             match_id: matchId,
             game_duration: match.info.gameDuration,
@@ -45,7 +45,7 @@ class MatchRepository {
             participants: JSON.stringify(match.info.participants),
         };
 
-        connection<MatchIdsModel>(tablesNames.matches).insert(matchToSave)
+        connection<MatchType>(tablesNames.matches).insert(matchToSave)
             .then(() => {
                 return;
             });

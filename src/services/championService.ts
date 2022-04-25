@@ -1,9 +1,9 @@
 import { MatchV5DTOs } from 'twisted/dist/models-dto';
-import { ChampionStatsModel } from '../types';
+import { ChampionStatsType } from '../types';
 
 class ChampionService {
     getChampionPlayed(participant: MatchV5DTOs.ParticipantDto) {
-        const championPlayed: ChampionStatsModel = {
+        const championPlayed: ChampionStatsType = {
             champion_id: participant.championId,
             champion_name: participant.championName,
             individual_position: participant.individualPosition,

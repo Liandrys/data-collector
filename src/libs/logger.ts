@@ -34,7 +34,7 @@ class Logger {
     }
 
     error(message: string) {
-        this.#logger.error(message);
+        this.#logger.error(new Error(message));
     }
 
     warn(message: string) {

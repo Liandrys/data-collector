@@ -39,7 +39,7 @@ class Database {
         });
 
         this.#queue.on('resolve', () => {
-            logger.info('Promise resolved');
+            // logger.info('Promise resolved');
         });
 
         this.#queue.on('error', (reject) => {
@@ -80,6 +80,8 @@ class Database {
                         table.smallint('level');
                         table.timestamp('last_update');
                         table.jsonb('leagues');
+                        table.string('puuid');
+                        table.string('summonerId');
                         table.specificType('matches', 'TEXT[]');
                     });
             }

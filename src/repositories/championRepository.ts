@@ -1,20 +1,20 @@
-import { ChampionStatsModel } from 'src/types';
+import { ChampionStatsType } from '../types';
 import Database from '../database';
 import { logger } from '../libs';
 import { tablesNames } from '../sql';
 
 class ChampionRepository {
-    async getChampionById(id: string): Promise<ChampionStatsModel[]> {
+    async getChampionById(id: string): Promise<ChampionStatsType[]> {
         const connecion = Database.getConnection();
 
-        return connecion<ChampionStatsModel>(tablesNames.championsStats).select().where('id', id)
+        return connecion<ChampionStatsType>(tablesNames.championsStats).select().where('id', id)
             .then(result => {
                 return result;
             });
 
     }
 
-    async createChampion(champ: ChampionStatsModel, win: boolean) {
+    async createChampion(champ: ChampionStatsType, win: boolean) {
         const id = `${champ.champion_id}_${champ.team_position}`;
         let matchesWinned = 0;
         let matchesLossed = 0;
@@ -39,7 +39,7 @@ class ChampionRepository {
                 team_position: champ.team_position
             };
 
-            await connection<ChampionStatsModel>(tablesNames.championsStats).insert(champToSave).then( () =>{
+            await connection<ChampionStatsType>(tablesNames.championsStats).insert(champToSave).then( () =>{
                 logger.info(`Champion with id ${champToSave.id} saved on the database`);
             });
         } catch (error) {
@@ -47,27 +47,27 @@ class ChampionRepository {
         }
     }
 
-    async updateChampion(prevChamp: ChampionStatsModel, newChamp: ChampionStatsModel) {
+    async updateChampion(prevChamp: ChampionStatsType, newChamp: ChampionStatsType) {
         const connection = Database.getConnection();
 
         try {
-            await connection<ChampionStatsModel>(tablesNames.championsStats).where('id', prevChamp.id).update(newChamp);
+            await connection<ChampionStatsType>(tablesNames.championsStats).where('id', prevChamp.id).update(newChamp);
         } catch (error) {
             throw new Error('Error on update champion: ' + error);
         }
     }
 
-    async getAllChampions(): Promise<ChampionStatsModel[] | null> {
+    async getAllChampions(): Promise<ChampionStatsType[] | null> {
         const connection = Database.getConnection();
 
         try {
-            return await connection<ChampionStatsModel>(tablesNames.championsStats).select();
+            return await connection<ChampionStatsType>(tablesNames.championsStats).select();
         } catch (error) {
             return null;
         }
     }
 
-    async saveChampion(champion: ChampionStatsModel, win: boolean): Promise<void>{
+    async saveChampion(champion: ChampionStatsType, win: boolean): Promise<void>{
         const championOnDatabase = await this.getChampionById(champion.id);
 
         // The champion dosent exist on the database
@@ -80,7 +80,7 @@ class ChampionRepository {
             const newLoss = championOnDatabase[0].losing_matches > 0 ? championOnDatabase[0].losing_matches : 0;
             const newPlayed = championOnDatabase[0].played_matches > 0 ? championOnDatabase[0].played_matches + 1 : 1;
 
-            const newChamp: ChampionStatsModel = {
+            const newChamp: ChampionStatsType = {
                 ...championOnDatabase[0],
                 losing_matches: win ? newLoss : newLoss + 1,
                 won_matches: win ? newWin + 1 : newWin,

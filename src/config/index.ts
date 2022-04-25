@@ -1,6 +1,6 @@
 import { Constants } from 'twisted';
 
 export const config = {
-    defaultSummonerName: 'Snipi3',
+    defaultSummonerName: 'Beleño',
     defaultRegion: Constants.Regions.LAT_NORTH
 };

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { logger } from './libs';
-import Summoner from './summoner';
+import Summoner from './api/Summoner';
 import MatchService from './services/matchService';
 import ChampionService from './services/championService';
 import { config } from './config';
@@ -9,6 +9,7 @@ import MatchRepository from './repositories/matchRepository';
 import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
 import Database from './database';
 import lodash from 'lodash';
+import summonerService from './services/summonerService';
 
 class Main {
     async dataCollector(summoner: string) {
@@ -54,37 +55,45 @@ class Main {
                 const participants = match.info.participants;
 
                 await MatchRepository.saveMatch(match, match.metadata.matchId);
-                await this.mapParticipants(participants, summonerName);
+                await this.mapParticipants(participants, summonerName, match.metadata.matchId);
             } else {
                 continue;
             }
         }
     }
 
-    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string) {
-        for (const element in participants) {
-            if (Object.prototype.hasOwnProperty.call(participants, element)) {
-                const participant = participants[element];
-                const championPlayed = ChampionService.getChampionPlayed(participant);
+    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string, matchId: string) {
+        try {
+            for (const element in participants) {
+                if (Object.prototype.hasOwnProperty.call(participants, element)) {
+                    const participant = participants[element];
+                    const championPlayed = ChampionService.getChampionPlayed(participant);
 
-                if (championPlayed.individual_position === 'Invalid') {
-                    continue;
-                } else {
-                    await ChampionRepository.saveChampion(championPlayed, participant.win);
+                    await summonerService.saveParticipant(participant, matchId);
+
+                    if (championPlayed.individual_position === 'Invalid') {
+                        continue;
+                    } else {
+                        await ChampionRepository.saveChampion(championPlayed, participant.win);
+
+                    }
                 }
             }
-        }
 
-        lodash.remove(participants, (o) => {
-            return o.summonerName === summonerName;
-        });
+            lodash.remove(participants, (o) => {
+                return o.summonerName === summonerName;
+            });
 
-        for (const element in participants) {
-            if (Object.prototype.hasOwnProperty.call(participants, element)) {
-                const participant = participants[element];
+            for (const element in participants) {
+                if (Object.prototype.hasOwnProperty.call(participants, element)) {
+                    const participant = participants[element];
 
-                await this.dataCollector(participant.summonerName);
+                    await this.dataCollector(participant.summonerName);
+                }
             }
+        } catch (error) {
+            console.log(error);
+            logger.error(error);
         }
     }
 }
