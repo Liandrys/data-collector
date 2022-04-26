@@ -9,9 +9,9 @@ class ChampionService {
             individual_position: participant.individualPosition,
             team_position: participant.teamPosition,
             id: `${participant.championId}_${participant.teamPosition}`,
-            won_matches: -1,
-            losing_matches: -1,
-            played_matches: -1,
+            won_matches: 0,
+            losing_matches: 0,
+            played_matches: 0,
         };
 
         return championPlayed;

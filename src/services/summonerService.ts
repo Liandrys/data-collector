@@ -8,6 +8,7 @@ class SummonerService {
         const win = participant.win ? 1: 0;
         const lose = participant.win ? 0: 1;
         const leagues = await Summoner.getSummonerLeague(participant.summonerId);
+        const date = new Date();
 
         const summoner: SummonerType = {
             name: participant.summonerName,
@@ -15,7 +16,7 @@ class SummonerService {
             won_matches: win,
             losing_matches: lose,
             level: participant.summonerLevel,
-            last_update: new Date(),
+            last_update: new Date(date.setHours(date.getHours(), date.getMinutes(), 0, 0)),
             leagues: JSON.stringify(leagues),
             matches: [MatchId],
             puuid: participant.puuid,
