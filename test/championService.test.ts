@@ -21,9 +21,10 @@ describe('Champions Service Testing', () => {
             won_matches: 0,
             losing_matches: 0,
             played_matches: 0,
+            tier: 'UNRANKED',
         };
 
-        const champion = ChampionService.getChampionPlayed(ParticipantMock);
+        const champion = ChampionService.getChampionPlayed(ParticipantMock, 'UNRANKED');
 
        expect(champion).to.deep.equalInAnyOrder(expectChamp);
 

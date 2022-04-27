@@ -15,7 +15,7 @@ class ChampionRepository {
     }
 
     async createChampion(champ: ChampionStatsType, win: boolean) {
-        const id = `${champ.champion_id}_${champ.team_position}`;
+        const id =  champ.id;
         let matchesWinned = 0;
         let matchesLossed = 0;
 
@@ -36,7 +36,8 @@ class ChampionRepository {
                 losing_matches: matchesLossed,
                 won_matches: matchesWinned,
                 played_matches: 1,
-                team_position: champ.team_position
+                team_position: champ.team_position,
+                tier: champ.tier,
             };
 
             await connection<ChampionStatsType>(tablesNames.championsStats).insert(champToSave).then( () =>{
@@ -69,7 +70,6 @@ class ChampionRepository {
 
     async saveChampion(champion: ChampionStatsType, win: boolean): Promise<void>{
         const championOnDatabase = await this.getChampionById(champion.id);
-
         // The champion dosent exist on the database
         if (championOnDatabase.length === 0) {
             // There is not a chmpion on database, create a new one

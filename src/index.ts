@@ -10,6 +10,7 @@ import { MatchV5DTOs } from 'twisted/dist/models-dto/matches';
 import Database from './database';
 import lodash from 'lodash';
 import summonerService from './services/summonerService';
+import { LeagueType } from './types';
 
 class Main {
     async dataCollector(summoner: string) {
@@ -19,7 +20,7 @@ class Main {
 
             if (summoner) {
                 firstSummoner = await Summoner.getSummonerByName(summoner);
-            } else {1
+            } else {
                 firstSummoner = await Summoner.getSummonerByName(config.defaultSummonerName);
             }
 
@@ -32,8 +33,7 @@ class Main {
     }
 
     async mapMatchList(matchsIds: string[], summonerName: string) {
-        // tslint:disable-next-line: prefer-for-of
-
+        // TODO: ove to services
         for (let index = 0; index < matchsIds.length; index++) {
             const matchid = matchsIds[index];
 
@@ -55,35 +55,45 @@ class Main {
                 const participants = match.info.participants;
 
                 await MatchRepository.saveMatch(match, match.metadata.matchId);
-                await this.mapParticipants(participants, summonerName, match.metadata.matchId);
+                await this.mapParticipants(participants, summonerName, match.metadata.matchId, match.info.gameType, match.info.gameMode);
             } else {
                 continue;
             }
         }
     }
 
-    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string, matchId: string) {
+    async mapParticipants(participants: MatchV5DTOs.ParticipantDto[], summonerName: string, matchId: string, gameType: string, gameMode: string) {
         try {
             for (const element in participants) {
+                // TODO: Move to services
                 if (Object.prototype.hasOwnProperty.call(participants, element)) {
                     const participant = participants[element];
-                    const championPlayed = ChampionService.getChampionPlayed(participant);
+                    const summoner = await summonerService.saveParticipant(participant, matchId);
+                    const leagues: LeagueType[] = JSON.parse(summoner.leagues);
+                    const rankedSoloq = leagues.find((league: LeagueType) => league.queueType === 'RANKED_SOLO_5x5');
+                    let championPlayed;
 
-                    await summonerService.saveParticipant(participant, matchId);
-
-                    if (championPlayed.individual_position === 'Invalid') {
-                        continue;
+                    if (rankedSoloq !== undefined) {
+                        championPlayed = ChampionService.getChampionPlayed(participant, rankedSoloq.tier);
                     } else {
-                        await ChampionRepository.saveChampion(championPlayed, participant.win);
+                        championPlayed = ChampionService.getChampionPlayed(participant, 'UNRANKED');
+                    }
 
+                    if (gameType === 'MATCHED_GAME' && gameMode === 'CLASSIC') {
+                        await ChampionRepository.saveChampion(championPlayed, participant.win);
+                    } else {
+                        // Do nothing
+                        console.log('Not a ranked game');
                     }
                 }
             }
 
+            // TODO: ove to services
             lodash.remove(participants, (o) => {
                 return o.summonerName === summonerName;
             });
 
+            // TODO: ove to services
             for (const element in participants) {
                 if (Object.prototype.hasOwnProperty.call(participants, element)) {
                     const participant = participants[element];

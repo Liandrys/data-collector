@@ -59,11 +59,11 @@ class SummonerService {
         if (ifSummonerExist) {
             const summoner = await this.getSummonerObjectFromParticipant(participant, matchId);
             const newSummonerObject = this.getGetSummonerObjectUpdated(summoner, matchId, participant.win);
-            await SummonerRepository.updateSummoner(newSummonerObject);
+            return await SummonerRepository.updateSummoner(newSummonerObject);
         } else {
             const summoner = await this.getSummonerObjectFromParticipant(participant, matchId);
 
-            await SummonerRepository.saveSummoner(summoner);
+            return await SummonerRepository.saveSummoner(summoner);
         }
     }
 

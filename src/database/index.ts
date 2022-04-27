@@ -97,6 +97,7 @@ class Database {
                         table.integer('losing_matches');
                         table.string('individual_position');
                         table.string('teamPosition');
+                        table.string('tier');
                     });
             }
 
