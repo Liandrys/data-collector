@@ -48,7 +48,7 @@ The data collector can extract the next information from league and save it on t
 * [ ] Team MVP
 
 ## Champions Stats
-* [x] Id: ```${champion_id}_${team_position}```
+* [x] Id: ```${champion_id}_${team_position}_${rank}```
 * [x] Champion id
 * [x] Champion name
 * [x] Played matches
@@ -56,6 +56,7 @@ The data collector can extract the next information from league and save it on t
 * [x] Losing matches
 * [x] Individual position
 * [x] Team position
+* [x] Rank
 * [ ] Runes
 * [ ] Match up
 
