@@ -1,6 +1,8 @@
 import { MatchV5DTOs } from 'twisted/dist/models-dto';
-import { SummonerType } from '../types';
+import { LeagueType, SummonerType } from '../types';
 import SummonerRepository from '../repositories/SummonerRepository';
+import ChampionService from '../services/championService';
+import ChampionRepository from '../repositories/championRepository';
 import Summoner from '../api/Summoner';
 
 class SummonerService {
@@ -64,6 +66,34 @@ class SummonerService {
             const summoner = await this.getSummonerObjectFromParticipant(participant, matchId);
 
             return await SummonerRepository.saveSummoner(summoner);
+        }
+    }
+
+    async handleParticipant(participant: MatchV5DTOs.ParticipantDto, matchId: string, gameType: string, gameMode: string) {
+        const summoner = await this.saveParticipant(participant, matchId);
+        const leagues = summoner.leagues;
+        let rankedSoloq;
+
+        if (leagues && typeof leagues === 'object' && Array.isArray(leagues)) {
+            // tslint:disable-next-line: one-variable-per-declaration
+            const leaguesOb: LeagueType[] = leagues as unknown as LeagueType[];
+
+            rankedSoloq = leaguesOb.find(league => league.queueType === 'RANKED_SOLO_5x5');
+        }
+
+        let championPlayed;
+
+        if (rankedSoloq != null && rankedSoloq !== undefined) {
+            championPlayed = ChampionService.getChampionPlayed(participant, rankedSoloq.tier);
+        } else {
+            championPlayed = ChampionService.getChampionPlayed(participant, 'UNRANKED');
+        }
+
+        if (gameType === 'MATCHED_GAME' && gameMode === 'CLASSIC') {
+            await ChampionRepository.saveChampion(championPlayed, participant.win);
+        } else {
+            // Do nothing
+            console.log('Not a ranked game');
         }
     }
 

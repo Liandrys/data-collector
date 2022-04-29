@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha -r ts-node/register -r dotenv/config test/**/*.test.ts ",
     "lint": "eslint . --ext .ts",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node index.ts",
     "eslint:fix": "eslint --fix",
     "coverage": "nyc npm run test"
   },
