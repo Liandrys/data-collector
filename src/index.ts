@@ -1,20 +1,13 @@
-import 'dotenv/config';
-import { logger } from './libs';
-import Summoner from './api/Summoner';
-import MatchService from './services/matchService';
+import DataCollector from './DataCollector';
+import { config } from './config';
 
-class DataCollector {
-    async collectDataFromSummoner(summonerName: string) {
-        try {
-            const firstSummoner = await Summoner.getSummonerByName(summonerName);
+// tslint:disable-next-line: no-console
+console.clear();
 
-            const matchlist = await MatchService.getMatchsIdList(firstSummoner.puuid);
-
-            await MatchService.mapMatchList(matchlist, summonerName);
-        } catch (error) {
-            logger.error(error);
-        }
-    }
-}
-
-export default new DataCollector();
+DataCollector.collectDataFromSummoner(config.defaultSummonerName)
+    .then( () => {
+        console.log('The data collector finished ;)');
+    })
+    .catch((error: string) => {
+        console.log(error);
+    });

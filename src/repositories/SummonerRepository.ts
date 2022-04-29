@@ -50,6 +50,14 @@ class SummonerRepository {
         return response;
     }
 
+    async getSummonersSavedOnDB() {
+        const connection = Database.getConnection();
+
+        const response = await connection.summoner.count();
+
+        return response;
+    }
+
 }
 
 export default new SummonerRepository();

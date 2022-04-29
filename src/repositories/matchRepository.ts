@@ -36,8 +36,6 @@ class MatchRepository {
 
     async saveMatch(match: MatchV5DTOs.MatchDto, matchId: string) {
         try {
-            logger.info(`[New match]: ${matchId}`);
-
             const connection = Database.getConnection();
 
             const matchToSave: MatchType = {
@@ -64,6 +62,14 @@ class MatchRepository {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    async getMatchesSavedOnDB() {
+        const connection = Database.getConnection();
+
+        const response = await connection.match.count();
+
+        return response;
     }
 }
 

@@ -1,7 +1,8 @@
 import Queue from 'queue-promise';
 import { logger } from '../libs';
-import { PrismaClient } from '@prisma/client';
+import Prisma from '@prisma/client';
 
+const { PrismaClient } = Prisma;
 class Database {
     #queue;
     #prisma;
@@ -17,11 +18,6 @@ class Database {
         });
 
         this.#prisma = new PrismaClient();
-
-        (async () => {
-            await this.#prisma.$connect();
-        })();
-
     }
 
     getConnection() {

@@ -40,9 +40,10 @@ class SummonerService {
             newLose += 1;
         }
 
-        newPlayedMatches += 1;
-
-        newMatches.push(matchId);
+        if (newMatches.indexOf(matchId) === -1) {
+            newMatches.push(matchId);
+            newPlayedMatches += 1;
+        }
 
         const newSummonerObject: SummonerType = {
             ...summoner,
@@ -93,10 +94,12 @@ class SummonerService {
             await ChampionRepository.saveChampion(championPlayed, participant.win);
         } else {
             // Do nothing
-            console.log('Not a ranked game');
         }
     }
 
+    async getSummonersSavedOnDB() {
+        return await SummonerRepository.getSummonersSavedOnDB();
+    }
 }
 
 export default new SummonerService();
