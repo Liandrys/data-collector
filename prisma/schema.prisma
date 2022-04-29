@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs https//pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Summoner {
+  name           String   @id @unique
+  played_matches Int
+  won_matches    Int
+  lost_matches   Int
+  level          Int
+  last_update    DateTime
+  puuid          String
+  summoner_id    String
+  leagues        Json[]
+  matches        String[]
+}
+
+model Match {
+  id               String             @id
+  game_id          Int
+  game_duration    Int
+  game_creation    DateTime
+  game_mode        String
+  game_type        String
+  game_version     String
+  average_rank     String
+  MatchParticipant MatchParticipant[]
+}
+
+model MatchParticipant {
+  id                             String @id
+  puuid                          String
+  match_id                       String
+  match                          Match   @relation(fields: [match_id], references: [id])
+  assists                        Int
+  baronKills                     Int
+  bountyLevel                    Int
+  champExperience                Int
+  champLevel                     Int
+  championId                     Int
+  championName                   String
+  championTransform              Int
+  consumablesPurchased           Int
+  damageDealtToBuildings         Int
+  damageDealtToObjectives        Int
+  damageDealtToTurrets           Int
+  damageSelfMitigated            Int
+  deaths                         Int
+  detectorWardsPlaced            Int
+  doubleKills                    Int
+  dragonKills                    Int
+  firstBloodAssist               Boolean
+  firstBloodKill                 Boolean
+  firstTowerAssist               Boolean
+  firstTowerKill                 Boolean
+  gameEndedInEarlySurrender      Boolean
+  gameEndedInSurrender           Boolean
+  goldEarned                     Int
+  goldSpent                      Int
+  individualPosition             String
+  inhibitorKills                 Int
+  inhibitorTakedowns             Int
+  inhibitorsLost                 Int
+  item0                          Int
+  item1                          Int
+  item2                          Int
+  item3                          Int
+  item4                          Int
+  item5                          Int
+  item6                          Int
+  itemsPurchased                 Int
+  killingSprees                  Int
+  kills                          Int
+  lane                           String
+  largestCriticalStrike          Int
+  largestKillingSpree            Int
+  largestMultiKill               Int
+  longestTimeSpentLiving         Int
+  magicDamageDealt               Int
+  magicDamageDealtToChampions    Int
+  magicDamageTaken               Int
+  neutralMinionsKilled           Int
+  nexusKills                     Int
+  nexusTakedowns                 Int
+  nexusLost                      Int
+  objectivesStolen               Int
+  objectivesStolenAssists        Int
+  participantId                  Int
+  pentaKills                     Int
+  physicalDamageDealt            Int
+  physicalDamageDealtToChampions Int
+  physicalDamageTaken            Int
+  profileIcon                    Int
+  quadraKills                    Int
+  riotIdName                     String
+  riotIdTagline                  String
+  role                           String
+  sightWardsBoughtInGame         Int
+  spell1Casts                    Int
+  spell2Casts                    Int
+  spell3Casts                    Int
+  spell4Casts                    Int
+  summoner1Casts                 Int
+  summoner1Id                    Int
+  summoner2Casts                 Int
+  summoner2Id                    Int
+  summonerId                     String
+  summonerLevel                  Int
+  summonerName                   String
+  teamEarlySurrendered           Boolean
+  teamId                         Int
+  teamPosition                   String
+  timeCCingOthers                Int
+  timePlayed                     Int
+  totalDamageDealt               Int
+  totalDamageDealtToChampions    Int
+  totalDamageShieldedOnTeammates Int
+  totalDamageTaken               Int
+  totalHeal                      Int
+  totalHealsOnTeammates          Int
+  totalMinionsKilled             Int
+  totalTimeCCDealt               Int
+  totalTimeSpentDead             Int
+  totalUnitsHealed               Int
+  tripleKills                    Int
+  trueDamageDealt                Int
+  trueDamageDealtToChampions     Int
+  trueDamageTaken                Int
+  turretKills                    Int
+  turretTakedowns                Int
+  turretsLost                    Int
+  unrealKills                    Int
+  visionScore                    Int
+  visionWardsBoughtInGame        Int
+  wardsKilled                    Int
+  wardsPlaced                    Int
+  win                            Boolean
+}
+
+model ChampionStats {
+  id                  String @id
+  champion_id         Int
+  champion_name       String
+  won_matches         Int
+  lost_matches        Int
+  played_matches      Int
+  team_position       String
+  individual_position String
+  tier                String
+}

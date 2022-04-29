@@ -1,17 +1,20 @@
 import { MatchType } from '../types';
 import Database from '../database';
 import { logger } from '../libs';
-import { tablesNames } from '../sql';
 import { MatchV5DTOs } from 'twisted/dist/models-dto';
+import matchService from '../services/matchService';
 
 class MatchRepository {
 
     async getMatchIdExistsOnDatabase(id: string) {
         try {
             const connecion = Database.getConnection();
-            const count = await connecion(tablesNames.matches).count('match_id', { as: 'cnt' }).where('match_id', id);
-
-            if (count[0].cnt >= 1) {
+            const response = await connecion.match.count({
+                where: {
+                    id
+                },
+            });
+            if (response >= 1) {
                 return true;
             } else {
                 return false;
@@ -25,30 +28,42 @@ class MatchRepository {
 
     async getMatchsIdsCount() {
         const connecion = Database.getConnection();
-        const count = await connecion(tablesNames.matches).count('id', { as: 'cnt' });
 
-        return count[0].cnt;
+        const response = await connecion.match.count();
+
+        return response;
     }
 
     async saveMatch(match: MatchV5DTOs.MatchDto, matchId: string) {
-        logger.info(`[New match]: ${matchId}`);
+        try {
+            logger.info(`[New match]: ${matchId}`);
 
-        const connection = Database.getConnection();
+            const connection = Database.getConnection();
 
-        const matchToSave: MatchType = {
-            game_id: match.info.gameId,
-            match_id: matchId,
-            game_duration: match.info.gameDuration,
-            game_mode: match.info.gameMode,
-            game_type: match.info.gameType,
-            game_version: match.info.gameVersion,
-            participants: JSON.stringify(match.info.participants),
-        };
+            const matchToSave: MatchType = {
+                game_id: match.info.gameId,
+                id: matchId,
+                game_duration: match.info.gameDuration,
+                game_mode: match.info.gameMode,
+                game_type: match.info.gameType,
+                game_version: match.info.gameVersion,
+                average_rank: '',
+                game_creation: new Date(match.info.gameCreation),
+            };
 
-        connection<MatchType>(tablesNames.matches).insert(matchToSave)
-            .then(() => {
-                return;
+            const matchParticipants = matchService.getMatchParticipants(match.info.participants, matchId);
+
+            await connection.match.create({
+                data: {
+                    ...matchToSave,
+                    MatchParticipant: {
+                        create: matchParticipants
+                    }
+                },
             });
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
 

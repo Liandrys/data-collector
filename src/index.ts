@@ -15,7 +15,6 @@ import { LeagueType } from './types';
 class Main {
     async dataCollector(summoner: string) {
         try {
-            // AlgorithmStats.start();
             let firstSummoner;
 
             if (summoner) {
@@ -69,11 +68,19 @@ class Main {
                 if (Object.prototype.hasOwnProperty.call(participants, element)) {
                     const participant = participants[element];
                     const summoner = await summonerService.saveParticipant(participant, matchId);
-                    const leagues: LeagueType[] = JSON.parse(summoner.leagues);
-                    const rankedSoloq = leagues.find((league: LeagueType) => league.queueType === 'RANKED_SOLO_5x5');
+                    const leagues = summoner.leagues;
+                    let rankedSoloq;
+
+                    if (leagues && typeof leagues === 'object' && Array.isArray(leagues)) {
+                        // tslint:disable-next-line: one-variable-per-declaration
+                        const leaguesOb: LeagueType[] = leagues as unknown as LeagueType[];
+
+                        rankedSoloq = leaguesOb.find(league => league.queueType === 'RANKED_SOLO_5x5');
+                    }
+
                     let championPlayed;
 
-                    if (rankedSoloq !== undefined) {
+                    if (rankedSoloq != null && rankedSoloq !== undefined) {
                         championPlayed = ChampionService.getChampionPlayed(participant, rankedSoloq.tier);
                     } else {
                         championPlayed = ChampionService.getChampionPlayed(participant, 'UNRANKED');

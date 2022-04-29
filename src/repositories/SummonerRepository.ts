@@ -1,35 +1,53 @@
+import { Prisma } from '@prisma/client';
 import Database from '../database';
-import { tablesNames } from '../sql';
 import { SummonerType } from '../types';
 
 class SummonerRepository {
 
-    async saveSummoner(summoner: SummonerType): Promise<SummonerType> {
+    async saveSummoner(summoner: SummonerType) {
         const connection = Database.getConnection();
 
-        return connection<SummonerType>(tablesNames.summoners).insert(summoner).then(() => {
-            return summoner;
+        const json = summoner.leagues as unknown as Prisma.JsonArray;
+
+        const response = await connection.summoner.create({
+            data: {
+                ...summoner,
+                leagues: json
+            }
         });
+
+        return response;
     }
 
     async getSummonerExistsByPuuid(puuid: string): Promise<boolean> {
         const connection = Database.getConnection();
 
-        return connection<SummonerType>(tablesNames.summoners).select().where('puuid', puuid).then(result => {
-            if (result.length > 0) {
-                return true;
-            } else {
-                return false;
-            }
+        const response = await connection.summoner.count({
+            where: { puuid }
         });
+
+        if (response > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    async updateSummoner(summoner: SummonerType): Promise<SummonerType> {
+    async updateSummoner(summoner: SummonerType) {
         const connection = Database.getConnection();
+        const leagues = summoner.leagues as unknown as Prisma.JsonArray;
 
-        return connection<SummonerType>(tablesNames.summoners).where('name', summoner.name).update(summoner).then(() => {
-            return summoner;
+        const response = connection.summoner.update({
+            where: {
+                name: summoner.name,
+            },
+            data: {
+                ...summoner,
+                leagues
+            }
         });
+
+        return response;
     }
 
 }

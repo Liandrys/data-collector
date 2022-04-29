@@ -1,36 +1,43 @@
+// eslint-disable-next-line no-unused-vars
+export type JsonObject = {[Key in string]?: JsonValue};
+
+export type JsonArray = JsonValue[];
+
+export type JsonValue = string | number | boolean | JsonObject | JsonArray | null;
+
 export interface ChampionStatsType {
-    id: string; // ${champion_id team_position tier}
-    champion_id: number;
-    champion_name: string;
-    won_matches: number;
-    losing_matches: number;
-    tier: string;
-    team_position: string;
-    individual_position: string;
-    played_matches: number;
+    id: string
+    champion_id: number
+    champion_name: string
+    won_matches: number
+    lost_matches: number
+    played_matches: number
+    team_position: string
+    individual_position: string
+    tier: string
 }
 
 export interface MatchType {
-    match_id: string;
-    game_id: number;
-    game_duration: number;
-    game_mode: string;
-    game_type: string;
-    game_version: string;
-    participants: string;
-    average_range?: string;
+    id: string
+    game_id: number
+    game_duration: number
+    game_creation: Date
+    game_mode: string
+    game_type: string
+    game_version: string
+    average_rank: string
 }
 
 export interface LeagueType {
-    wins: string;
-    losses: string;
+    wins: number;
+    losses: number;
     veteran: boolean;
     inactive: boolean;
     hotStreak: boolean;
     queueType: string;
     freshBlood: boolean;
     summonerId: string;
-    leaguePoints: string;
+    leaguePoints: number;
     summonerName: string;
     tier: string;
     rank: string;
@@ -40,11 +47,11 @@ export interface SummonerType {
     name: string;
     played_matches: number;
     won_matches: number;
-    losing_matches: number;
+    lost_matches: number;
     level: number;
     last_update: Date;
-    leagues: string;
+    leagues: LeagueType[];
     matches: string[];
     puuid: string;
-    summonerId: string;
+    summoner_id: string;
 }

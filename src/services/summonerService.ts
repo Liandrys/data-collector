@@ -14,13 +14,13 @@ class SummonerService {
             name: participant.summonerName,
             played_matches: 1,
             won_matches: win,
-            losing_matches: lose,
+            lost_matches: lose,
             level: participant.summonerLevel,
             last_update: new Date(date.setHours(date.getHours(), date.getMinutes(), 0, 0)),
-            leagues: JSON.stringify(leagues),
+            leagues,
             matches: [MatchId],
             puuid: participant.puuid,
-            summonerId: participant.summonerId,
+            summoner_id: participant.summonerId,
         };
 
         return summoner;
@@ -28,7 +28,7 @@ class SummonerService {
 
     getGetSummonerObjectUpdated(summoner: SummonerType, matchId: string, win: boolean): SummonerType {
         let newWin = summoner.won_matches;
-        let newLose = summoner.losing_matches;
+        let newLose = summoner.lost_matches;
         let newPlayedMatches = summoner.played_matches;
         const newMatches = summoner.matches;
 
@@ -47,7 +47,7 @@ class SummonerService {
             played_matches: newPlayedMatches,
             matches: newMatches,
             won_matches: newWin,
-            losing_matches: newLose,
+            lost_matches: newLose,
         };
 
         return newSummonerObject;

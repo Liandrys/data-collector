@@ -19,7 +19,7 @@ describe('Champions Service Testing', () => {
             team_position: 'TOP',
             individual_position: 'TOP',
             won_matches: 0,
-            losing_matches: 0,
+            lost_matches: 0,
             played_matches: 0,
             tier: 'UNRANKED',
         };

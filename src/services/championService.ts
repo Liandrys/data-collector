@@ -18,7 +18,7 @@ class ChampionService {
             team_position: participant.teamPosition,
             id: `${participant.championId}_${participant.individualPosition}_${league}`,
             won_matches: 0,
-            losing_matches: 0,
+            lost_matches: 0,
             played_matches: 0,
             tier: league,
         };
