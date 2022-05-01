@@ -6,6 +6,12 @@ import ChampionRepository from '../repositories/championRepository';
 import Summoner from '../api/Summoner';
 
 class SummonerService {
+    /**
+     * Giving a participant object from match information, parse it to a summoner object
+     * @param participant The participant of the match
+     * @param MatchId The match id of the match
+     * @returns Giving a participant, return the summoner information to save on Summoners table
+     */
     async getSummonerObjectFromParticipant(participant: MatchV5DTOs.ParticipantDto, MatchId: string): Promise<SummonerType> {
         const win = participant.win ? 1: 0;
         const lose = participant.win ? 0: 1;
@@ -28,6 +34,14 @@ class SummonerService {
         return summoner;
     }
 
+    /**
+     * Giving a summoner object, return the summoner object updated with anew match.
+     * Update the win/loss/played matches of the summoner
+     * @param summoner The summoner object to update
+     * @param matchId The id of the match
+     * @param win is the summoner win the match
+     * @returns The summoner object updated
+     */
     getGetSummonerObjectUpdated(summoner: SummonerType, matchId: string, win: boolean): SummonerType {
         let newWin = summoner.won_matches;
         let newLose = summoner.lost_matches;
@@ -56,6 +70,12 @@ class SummonerService {
         return newSummonerObject;
     }
 
+    /**
+     * Save a participant on the database, if exist, update the matchs and win/loss/played matches
+     * @param participant The participant of the match
+     * @param matchId The match id of the match
+     * @returns 
+     */
     async saveParticipant(participant: MatchV5DTOs.ParticipantDto, matchId: string) {
         const ifSummonerExist = await SummonerRepository.getSummonerExistsByPuuid(participant.puuid);
 
@@ -70,6 +90,14 @@ class SummonerService {
         }
     }
 
+    /**
+     * Giving a participant, match id, game type and game mode
+     * update the summoner information on the database
+     * @param participant The participant of the match
+     * @param matchId The new match
+     * @param gameType If the game its matched or perso game
+     * @param gameMode If the game mode is ranked, normal or anotherone game mode
+     */
     async handleParticipant(participant: MatchV5DTOs.ParticipantDto, matchId: string, gameType: string, gameMode: string) {
         const summoner = await this.saveParticipant(participant, matchId);
         const leagues = summoner.leagues;

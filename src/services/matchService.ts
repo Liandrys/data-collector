@@ -15,17 +15,35 @@ class MatchService {
         this.#api = Api;
     }
 
+    /**
+     * Giving summoner account id, search for the last 5 matches
+     * @param acountId The account id of the summoner
+     * @returns Array of the last 5 match ids of the summoner
+     */
     async getMatchsIdList(acountId:string) {
         return (await this.#api.MatchV5.list(acountId, Constants.RegionGroups.AMERICAS, { count: 5, start: 0 })).response;
     }
 
+    /**
+     * Giving a match id, get the match info from /match/v5/{matchId}
+     * @param matchId The match id of the match
+     * @returns The match information
+     */
     async getMatchInfo(matchId: string) {
         return (await this.#api.MatchV5.get(matchId, Constants.RegionGroups.AMERICAS)).response;
     }
 
+    /**
+     * Giving a participant array from RIOT API, parse the data and return a participants
+     * array to save on the database
+     * @param participants The participants of the match
+     * @param matchId The match id of the match
+     * @returns Array with the participants information of the match
+     */
     getMatchParticipants(participants: MatchV5DTOs.ParticipantDto[], matchId: string) {
         const matchParticipants: MatchParticipant[] = [];
 
+        // TODO: Remove unnecessary data
         participants.forEach(participant => {
             const matchParticipant: MatchParticipant = {
                 id: `${participant.puuid}_${matchId}`,
@@ -141,6 +159,11 @@ class MatchService {
         return matchParticipants;
     }
 
+    /**
+     * Giving a match id array, get the information of each match and save it in the database
+     * @param matchsIds - Array of match ids
+     * @param summonerName name of the summoner
+     */
     async mapMatchList(matchsIds: string[], summonerName: string) {
         try {
             await DataCollector.UpdateLog();
@@ -214,7 +237,11 @@ class MatchService {
         }
     }
 
-    async getMatchesSavedOnDB() {
+    /**
+     * Count all the matches saved in the database
+     * @returns the count of the matches saved in the database
+     */
+    async getMatchesSavedOnDB(): Promise<number> {
         return await MatchRepository.getMatchesSavedOnDB();
     }
 }

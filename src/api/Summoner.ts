@@ -9,10 +9,20 @@ class Summoner {
         this.#api = Api;
     }
 
+    /**
+     * Giving a summoner name, get the summoner information from /summoner/V5
+     * @param summonerName The name of the summoner
+     * @returns The summoner information from RIOT API
+     */
     async getSummonerByName(summonerName:string) {
         return (await this.#api.Summoner.getByName(summonerName, config.defaultRegion)).response;
     }
 
+    /**
+     * Giving a summoner id, get the summoner information from /league/V5
+     * @param summonerId summonerId of the summoner
+     * @returns the summoner league information from RIOT API
+     */
     async getSummonerLeague(summonerId: string){
         const response = await this.#api.League.bySummoner(summonerId, config.defaultRegion);
 

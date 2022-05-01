@@ -2,6 +2,11 @@ import { ChampionStatsType } from '../types';
 import Database from '../database';
 
 class ChampionRepository {
+    /**
+     * Serach on the database for a champion with the given id
+     * @param id The id of the champion
+     * @returns The champion with the id or null if not found
+     */
     async getChampionById(id: string): Promise<ChampionStatsType[]> {
         const connecion = Database.getConnection();
 
@@ -12,6 +17,12 @@ class ChampionRepository {
         return response;
     }
 
+    /**
+     * Save a champion on the database
+     * @param champ The champion to create
+     * @param win If the champion win the match
+     * @returns the champion created
+     */
     async createChampion(champ: ChampionStatsType, win: boolean) {
         let matchesWinned = 0;
         let matchesLossed = 0;
@@ -42,6 +53,12 @@ class ChampionRepository {
         }
     }
 
+    /**
+     * Update the champion on the database
+     * @param prevChamp The champion before update
+     * @param newChamp The champion after update
+     * @returns the champion updated
+     */
     async updateChampion(prevChamp: ChampionStatsType, newChamp: ChampionStatsType) {
         const connection = Database.getConnection();
 
@@ -57,6 +74,10 @@ class ChampionRepository {
         }
     }
 
+    /**
+     * Search all the champions on the database ans return them
+     * @returns all the champions on the database
+     */
     async getAllChampions(): Promise<ChampionStatsType[] | null> {
         const connection = Database.getConnection();
 
@@ -69,6 +90,11 @@ class ChampionRepository {
         }
     }
 
+    /**
+     * Insert or update a champion on the database and return the champion
+     * @param champion Champion to save or update
+     * @param win if the champion win the match
+     */
     async saveChampion(champion: ChampionStatsType, win: boolean): Promise<void>{
         const championOnDatabase = await this.getChampionById(champion.id);
         // The champion dosent exist on the database

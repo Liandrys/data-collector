@@ -2,6 +2,12 @@ import { MatchV5DTOs } from 'twisted/dist/models-dto';
 import { ChampionStatsType } from '../types';
 
 class ChampionService {
+    /**
+     * Giving a participant, return the champion information to save on Champions Stats table
+     * @param participant The participant of the match
+     * @param league League from SOLOQUEUE of the participant
+     * @returns the object with the champion stats to save on DB
+     */
     getChampionPlayed(participant: MatchV5DTOs.ParticipantDto, league: string) {
         let individualPosition;
 

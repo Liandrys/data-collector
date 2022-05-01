@@ -6,6 +6,11 @@ import matchService from '../services/matchService';
 
 class MatchRepository {
 
+    /**
+     * Search if a match is already saved on the database
+     * @param id The id of the match
+     * @returns true if the match is saved on DB, false otherwise
+     */
     async getMatchIdExistsOnDatabase(id: string) {
         try {
             const connecion = Database.getConnection();
@@ -26,14 +31,11 @@ class MatchRepository {
         }
     }
 
-    async getMatchsIdsCount() {
-        const connecion = Database.getConnection();
-
-        const response = await connecion.match.count();
-
-        return response;
-    }
-
+    /**
+     * Giving a match id, save it on the database
+     * @param match Save the match on the database
+     * @param matchId the id of the match
+     */
     async saveMatch(match: MatchV5DTOs.MatchDto, matchId: string) {
         try {
             const connection = Database.getConnection();
@@ -64,6 +66,10 @@ class MatchRepository {
         }
     }
 
+    /**
+     * Count all matches on the database
+     * @returns The number of matches saved on the database
+     */
     async getMatchesSavedOnDB() {
         const connection = Database.getConnection();
 

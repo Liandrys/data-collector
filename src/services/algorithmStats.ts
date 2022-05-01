@@ -24,7 +24,7 @@ class AlgorithmStats {
     }
 
     async #recordMatchsIdsCount() {
-        const count  = await MatchRepository.getMatchsIdsCount();
+        const count  = await MatchRepository.getMatchesSavedOnDB();
 
         const newData = {
             time: new Date().toLocaleTimeString(),
